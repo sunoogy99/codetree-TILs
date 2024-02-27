@@ -14,7 +14,8 @@ long long dp(int num) {
 	}
 	else {
 		if (!arr[num]) {
-			arr[num] = dp(num - 2) + dp(num - 3);
+			arr[num] = dp(num - 2) % 10007 + dp(num - 3) % 10007;
+			arr[num] %= 10007;
 		}
 		return arr[num];
 	}
