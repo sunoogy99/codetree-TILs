@@ -30,8 +30,7 @@ int main() {
 
 	long long min_val = LLONG_MAX;
 	int r = n, c = n;
-
-	while (r > 1 || c > 1) {
+	while (r > 0 && c > 0) {
 		if (arr[r][c] < min_val) {
 			min_val = arr[r][c];
 		}
