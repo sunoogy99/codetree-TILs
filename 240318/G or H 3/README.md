@@ -5,7 +5,8 @@
 |[Novice Mid / 완전탐색 I / 구간 단위로 완전탐색](https://www.codetree.ai/missions?missionId=5)|20xp|![쉬움][easy]|
 
 
-
+완전 탐색에서 구간 설정하고 탐색하는 방법
+양끝 포인터 잡기 위해 i, j, k 3중 for문 이용
 
 
 
