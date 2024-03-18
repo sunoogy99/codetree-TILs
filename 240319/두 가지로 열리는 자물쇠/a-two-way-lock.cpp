@@ -38,7 +38,8 @@ int main() {
 				bcheck[j][i] = true;
 			}
 			else {
-				bcheck[(j + n) % n][i] = true;
+				if (j == 0) bcheck[n][i] = true;
+				else bcheck[(j + n) % n][i] = true;
 			}
 		}
 
