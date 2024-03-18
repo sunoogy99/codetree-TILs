@@ -12,9 +12,9 @@ int main() {
 	for (int i = 1; i <= n; i++) {
 		cin >> arr[i];
 
-		if (i > 2) {
+		if (i > k - 1) {
 			part_sum += arr[i];
-			part_sum -= arr[i - 3];
+			part_sum -= arr[i - k];
 
 			if (part_sum > max_val) {
 				max_val = part_sum;
