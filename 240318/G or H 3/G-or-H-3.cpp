@@ -23,6 +23,10 @@ int main() {
 	for (int i = 1; i <= 10001; i++) {
 		int point = 0;
 		
+		if (i + k > 10000) {
+			break;
+		}
+
 		for (int j = 0; j <= k; j++) {
 			if (pos[i + j] == 'G') {
 				point += 1;
