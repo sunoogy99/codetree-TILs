@@ -5,13 +5,16 @@
 #include <vector>
 using namespace std;
 
+// 간과할 수도 있는 내용
+// 같은 번호 상에서 터지는 블록 개수가 여러 개일 수 있다.
+
 int n, k;
 int max_val = INT_MIN;
 int dx[4] = { 1,0,-1,0 };
 int dy[4] = { 0,1,0,-1 };
 int grid[101][101];
 bool visited[101][101];
-vector<int> block;
+vector<int> block[101];
 
 bool InRange(int x, int y) {
 	return x >= 0 && x < n && y >= 0 && y < n;
@@ -55,7 +58,6 @@ int main() {
 	for (k = 1; k <= max_val; k++) {
 		// cnt: 연결된 블록 개수 저장
 		int cnt = 0;
-		int max_cnt = 0;
 		memset(visited, false, sizeof(visited));
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
@@ -67,33 +69,31 @@ int main() {
 				if (grid[i][j] == k && !visited[i][j]) {
 					dfs(i, j, cnt);
 					/*
-						cnt, max_cnt 비교 및 cnt 갱신 이유
+						cnt 갱신 이유
 						k와 같은 값에 대해 dfs 탐색 수행한다고 할 때,
 						연결되지 않은 블럭도 존재할 수 있음
-						그 중에서 가장 큰 블럭 크기를 알아내야 하기 때문에
-						max_cnt 사용하며, 각 블럭의 크기는 개별 계산해야 하므로
-						cnt 값은 dfs를 마치고 나왔을 때 0으로 다시 초기화 해야 함
+						따라서 cnt 값은 dfs를 마치고 나왔을 때 0으로 다시 초기화 해야 함
 					*/
-					if (cnt > max_cnt) 
-						max_cnt = cnt;
+					block[k].push_back(cnt);
 					cnt = 0;
 				}
 			}
 		}
 
-		block.push_back(max_cnt);
 	}
 
 	// pop_cnt : 터지는 블럭 개수
 	// max_cnt : 터지는 블럭 중 가장 큰 블럭 크기
 	int pop_cnt = 0;
 	int max_cnt = INT_MIN;
-	for (int i = 0; i < block.size(); i++) {
-		if (block[i] >= 4)
-			pop_cnt++;
 
-		if (block[i] > max_cnt) 
-			max_cnt = block[i];
+	for (int i = 1; i <= max_val; i++) {
+		for (auto& num : block[i]) {
+			if (num >= 4)
+				pop_cnt++;
+			if (num > max_cnt)
+				max_cnt = num;
+		}
 	}
 
 	cout << pop_cnt << ' ' << max_cnt << '\n';
