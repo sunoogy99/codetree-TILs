@@ -31,8 +31,6 @@ bool canGo(int x, int y) {
 // 이전에 저장된 값으로 돌아감
 // pass by reference로 하면, 값 자체가 바껴서 다른 결과 나옴
 void dfs(int cur_x, int cur_y, int min_val) {
-	visited[cur_x][cur_y] = true;
-
 	if (arr[cur_x][cur_y] < min_val) {
 		min_val = arr[cur_x][cur_y];
 	}
@@ -46,6 +44,7 @@ void dfs(int cur_x, int cur_y, int min_val) {
 		int new_y = cur_y + dy[i];
 
 		if (canGo(new_x, new_y)) {
+			visited[cur_x][cur_y] = true;
 			dfs(new_x, new_y, min_val);
 			visited[new_x][new_y] = false;
 		}
@@ -63,8 +62,8 @@ int main() {
 
 	int min_val = INT_MAX;
 	dfs(0, 0, min_val);
-
 	int max_val = INT_MIN;
+
 	for (auto& num : min_list) {
 		if (num > max_val)
 			max_val = num;
