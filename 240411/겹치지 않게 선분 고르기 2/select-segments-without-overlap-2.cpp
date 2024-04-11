@@ -26,9 +26,12 @@ int main() {
 	sort(arr + 1, arr + n + 1, compare);
 
 	// arr[0]: (0, 0)
+	// picked는 이전에 선택된 막대의 인덱스를 저장하는 변수
+	int picked = 0;
 	for (int i = 1; i <= n; i++) {
-		if (arr[i].first > arr[i - 1].second) {
+		if (arr[i].first > arr[picked].second) {
 			total++;
+			picked = i;
 		}
 	}
 
