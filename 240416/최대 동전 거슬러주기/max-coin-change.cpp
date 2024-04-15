@@ -11,7 +11,7 @@ int coin[101];
 int dp[10001];
 
 void initialize() {
-	for (int i = 1; i <= n; i++) {
+	for (int i = 1; i <= m; i++) {
 		dp[i] = INT_MIN;
 	}
 
