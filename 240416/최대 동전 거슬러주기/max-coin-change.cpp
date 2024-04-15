@@ -32,7 +32,7 @@ int main() {
 			if (i >= coin[j]) {
 				// i - coin[j] 값 갱신이 없는 경우
 				// 해당 금액을 만드는 동전 조합이 없음을 의미
-				if (i - coin[j] == INT_MIN)
+				if (dp[i - coin[j]] == INT_MIN)
 					continue;
 
 				dp[i] = max(dp[i], dp[i - coin[j]] + 1);
