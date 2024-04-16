@@ -13,7 +13,12 @@ int main() {
 
 	for (int i = 0; i < n; i++) {
 		cin >> arr[i];
-		num_to_index[arr[i]] = i + 1;
+		if (num_to_index.find(arr[i]) == num_to_index.end()) {
+			num_to_index[arr[i]] = 1;
+		}
+		else {
+			num_to_index[arr[i]]++;
+		}
 	}
 
 	for (int i = 0; i < m; i++) {
