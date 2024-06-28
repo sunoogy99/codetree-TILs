@@ -33,8 +33,9 @@ const solution = (data, visited) => {
     }
 
     const dfs = (x, y) => {
-        // 우측 하단에 도달하고 뱀이 존재하지 않는 경우
-        if (x === N - 1 && y === M - 1 && data[x][y]) {
+        // 우측 하단에 도달하고 뱀이 존재하지 않는 경우,
+        // 또는 우측 하단에 도달하여 경로가 존재함을 알고 있는 경우
+        if (isPathExist || (x === N - 1 && y === M - 1 && data[x][y])) {
             isPathExist = true;
             return;
         }
