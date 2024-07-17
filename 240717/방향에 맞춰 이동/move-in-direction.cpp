@@ -11,7 +11,7 @@ int main() {
     char dir;
     int cnt;
     pair<int, int> pos = { 0, 0 };
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < n; i++) {
         cin >> dir >> cnt;
 
         int dirIdx;
