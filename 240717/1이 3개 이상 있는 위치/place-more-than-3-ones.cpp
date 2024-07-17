@@ -24,8 +24,6 @@ void dfs(int x, int y) {
 	visited[x][y] = true;
 	oCnt++;
 
-	if (oCnt >= 3) return;
-
 	for (int i = 0; i < 4; i++) {
 		int newX = x + dx[i];
 		int newY = y + dy[i];
@@ -50,8 +48,8 @@ int main() {
 		for (int j = 1; j <= n; j++) {
 			if (canGo(i, j)) {
 				dfs(i, j);
+				if (oCnt >= 3) res += oCnt;
 				oCnt = 0;
-				res++;
 			}
 		}
 	}
