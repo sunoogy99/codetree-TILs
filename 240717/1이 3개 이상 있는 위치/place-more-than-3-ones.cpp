@@ -3,35 +3,12 @@ using namespace std;
 
 int n;
 int grid[101][101];
-bool visited[101][101];
 
-int oCnt;
-
-int dx[4] = { 0, 1, 0, -1 };
-int dy[4] = { 1, 0, -1, 0 };
+int dx[4] = { -1, 0, 1, 0 };
+int dy[4] = { 0, 1, 0, -1 };
 
 bool inRange(int x, int y) {
 	return x > 0 && x <= n && y > 0 && y <= n;
-}
-
-bool canGo(int x, int y) {
-	if (!inRange(x, y)) return false;
-	else if (visited[x][y] || !grid[x][y]) return false;
-	else return true;
-}
-
-void dfs(int x, int y) {
-	visited[x][y] = true;
-	oCnt++;
-
-	for (int i = 0; i < 4; i++) {
-		int newX = x + dx[i];
-		int newY = y + dy[i];
-
-		if (canGo(newX, newY)) {
-			dfs(newX, newY);
-		}
-	}
 }
 
 int main() {
@@ -46,10 +23,20 @@ int main() {
 	int res = 0;
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= n; j++) {
-			if (canGo(i, j)) {
-				dfs(i, j);
-				if (oCnt >= 3) res += oCnt;
-				oCnt = 0;
+			int oCnt = 0;
+			for (int d = 0; d < 4; d++) {
+				int newX = i + dx[d];
+				int newY = j + dy[d];
+
+				// 칸에 0이 적혀 있어도 방문 가능하며, 주변 칸에 1이 몇 개 있는지 카운트하고
+				// 1이 3개 이상이면 res 증가 시킴
+				if (inRange(newX, newY) && grid[newX][newY]) {
+					oCnt++;
+				}
+			}
+
+			if (oCnt >= 3) {
+				res++;
 			}
 		}
 	}
