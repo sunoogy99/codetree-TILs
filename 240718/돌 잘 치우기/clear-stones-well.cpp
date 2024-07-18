@@ -62,12 +62,12 @@ int main() {
 		}
 
 		// BFS 실행하기
+		int visitCnt = 0;
 		for (const pair<int, int> pos : starts) {
 			if (visited[pos.first][pos.second]) {
 				continue;
 			}
 
-			int visitCnt = 0;
 			queue<pair<int, int>> q;
 			q.emplace(pos);
 			visited[pos.first][pos.second] = true;
@@ -89,10 +89,10 @@ int main() {
 					}
 				}
 			}
+		}
 
-			if (visitCnt > maxVal) {
-				maxVal = visitCnt;
-			}
+		if (visitCnt > maxVal) {
+			maxVal = visitCnt;
 		}
 
 		// 되돌리기
