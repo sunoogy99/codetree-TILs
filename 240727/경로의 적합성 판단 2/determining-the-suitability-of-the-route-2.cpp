@@ -5,6 +5,7 @@ int n, m, k;
 
 int parent[100001];
 int height[100001];
+int path[100001];
 
 int Find(int x) {
 	if (x == parent[x]) return x;
@@ -42,12 +43,20 @@ int main() {
 		Union(x, y);
 	}
 
-	int x, y;
-	cin >> x >> y;
-	int xParent = Find(x);
-	int yParent = Find(y);
+	for (int i = 0; i < k; i++) {
+		cin >> path[i];
+	}
 
-	if (xParent == yParent) {
+	int srcParent = Find(path[0]);
+
+	for (int i = 1; i < k; i++) {
+		if (srcParent != Find(path[i])) {
+			srcParent = 0;
+			break;
+		}
+	}
+
+	if (srcParent != 0) {
 		cout << 1 << '\n';
 	}
 	else {
