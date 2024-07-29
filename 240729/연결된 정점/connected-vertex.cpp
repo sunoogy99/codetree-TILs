@@ -23,16 +23,16 @@ void Union(int x, int y) {
 
 	if (height[x] < height[y]) {
 		parent[x] = y; // y 밑에 x가 달린 것
-		cnt[y]++;
+		cnt[y] += cnt[x];
 	}
 	else if (height[x] > height[y]) {
 		parent[y] = x; // x 밑에 y가 달린 것
-		cnt[x]++;
+		cnt[x] += cnt[y];
 	}
 	else {
 		parent[y] = x;
 		height[x]++;
-		cnt[x]++;
+		cnt[x] += cnt[y];
 	}
 }
 
