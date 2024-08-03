@@ -26,15 +26,18 @@ void Union(int x, int y) {
 	}
 	else {
 		// 번호가 작은 쪽으로 선택
-		int minV = min(x, y);
-		int maxV = max(x, y);
+		/*int minV = min(x, y);
+		int maxV = max(x, y);*/
 
-		parent[maxV] = minV;
-		height[minV]++;
+		parent[y] = x;
+		height[x]++;
 	}
 }
 
 int main() {
+
+	//freopen("input.txt", "r", stdin);
+
 	cin >> n;
 
 	for (int i = 1; i <= n; i++) {
@@ -48,6 +51,12 @@ int main() {
 	for (int i = 1; i <= n - 2; i++) {
 		cin >> a >> b;
 		Union(a, b);
+	}
+
+	// 정점 번호 갱신 -> compress tree로 변형
+	// O(nlogn)
+	for (int i = 1; i <= n; i++) {
+		Find(i);
 	}
 
 	// set에 부모 정점 번호를 넣는다.
