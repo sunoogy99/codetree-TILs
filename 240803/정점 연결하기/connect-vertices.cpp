@@ -1,6 +1,6 @@
 #include <iostream>
 #include <algorithm>
-#include <set>
+#include <map>
 using namespace std;
 
 int n;
@@ -25,10 +25,6 @@ void Union(int x, int y) {
 		parent[y] = x;
 	}
 	else {
-		// 번호가 작은 쪽으로 선택
-		/*int minV = min(x, y);
-		int maxV = max(x, y);*/
-
 		parent[y] = x;
 		height[x]++;
 	}
@@ -62,14 +58,23 @@ int main() {
 	// set에 부모 정점 번호를 넣는다.
 	// set은 자동으로 오름차순 정렬된다.
 	// 서로 다른 2개의 정점 번호가 저장될 것이다.
-	set<int> parents;
+	map<int, int> mp;
 	for (int i = 1; i <= n; i++) {
-		parents.insert(parent[i]);
+		if (mp.find(parent[i]) == mp.end()) {
+			mp[parent[i]] = i;
+		}
+		else {
+			mp[parent[i]] = min(mp[parent[i]], i);
+		}
 	}
 
-	for (int v : parents) {
-		cout << v << ' ';
+	int ans[2];
+	int idx = 0;
+	for (map<int, int>::iterator it = mp.begin(); it != mp.end(); it++) {
+		ans[idx] = it->second;
+		idx++;
 	}
 
+	cout << min(ans[0], ans[1]) << ' ' << max(ans[0], ans[1]) << '\n';
 	return 0;
 }
