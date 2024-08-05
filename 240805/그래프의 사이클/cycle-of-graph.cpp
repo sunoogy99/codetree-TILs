@@ -54,7 +54,7 @@ int main() {
 		if (!noCycle) idx = min(idx, i); // 사이클을 만드는 경우가 여러 경우일 수 있음
 	}
 
-	if (idx == -1) cout << "happy" << '\n';
+	if (idx == 999999) cout << "happy" << '\n';
 	else cout << idx << '\n';
 
 	return 0;
