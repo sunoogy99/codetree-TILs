@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <cstring>
 using namespace std;
@@ -7,23 +8,28 @@ int n;
 vector<vector<pair<int, int>>> tree; // 연결된 정점, 가중치 저장
 bool visited[100001];
 
-int dist;
+int maxDist;
+int farVer;
 
-void dfs(int x) {
+void dfs(int x, int sum) {
 	visited[x] = true;
-	
-	int maxC = -1;
-	int maxD = 0;
+	bool noneGo = true; // 더 이상 탐색할 노드가 없는 경우
+
 	for (pair<int, int> c : tree[x]) {
-		if (!visited[c.first] && c.second > maxD) {
-			maxC = c.first;
-			maxD = c.second;
+		if (!visited[c.first]) {
+			noneGo = false;
+			dfs(c.first, sum + c.second);
 		}
 	}
 
-	if (maxC != -1) {
-		dist += maxD;
-		dfs(maxC);
+	// 리프 노드인 경우
+	if (noneGo) {
+		if (sum > maxDist) {
+			maxDist = sum;
+			farVer = x;
+		}
+
+		return;
 	}
 }
 
@@ -39,17 +45,10 @@ int main() {
 		tree[b].push_back(make_pair(a, w));
 	}
 
-	int maxDist = 0;
-	for (int i = 1; i <= n; i++) {
-		memset(visited, false, sizeof visited);
-		dfs(i);
+	dfs(1, 0);
+	memset(visited, false, sizeof visited);
 
-		if (dist > maxDist) {
-			maxDist = dist;
-		}
-
-		dist = 0;
-	}
+	dfs(farVer, 0);
 
 	cout << maxDist << '\n';
 	return 0;
