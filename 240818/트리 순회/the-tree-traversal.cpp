@@ -3,8 +3,8 @@
 using namespace std;
 
 int n;
-char tree[27];
-char aIdx[27];
+char tree[30];
+char aIdx[30];
 
 // 전위 순회
 void preOrder(int idx) {
@@ -28,6 +28,9 @@ void postOrder(int idx) {
 }
 
 int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
 	cin >> n;
 
 	char node, left, right;
