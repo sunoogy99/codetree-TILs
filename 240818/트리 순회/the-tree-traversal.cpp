@@ -3,8 +3,8 @@
 using namespace std;
 
 int n;
-char tree[30];
-char aIdx[30];
+char tree[100];
+char aIdx[100];
 
 // 전위 순회
 void preOrder(int idx) {
