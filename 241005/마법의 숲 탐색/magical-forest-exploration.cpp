@@ -7,21 +7,13 @@ using namespace std;
 #define SOUTH 2
 #define WEST 3
 
-// 맨 처음 요구사항 잘못 이해함.
-// 인접한 다른 골렘의 출입구로도 넘어갈 수 있다고 생각했으나,
-// 현재 골렘의 출입구에서 다른 골렘으로 이동 가능하지
-// 현재 골렘에서 다른 골렘의 출입구로 넘어가는 것은 불가능
-// 따라서 출입구에 있는 상태 파악이 필요해짐 -> ON_ENTRY 식별 번호 생성 
-#define ENTRY 1e6 // 출입구 식별 번호
-#define ON_ENTRY 1e7 // 현재 출입구 위에 있는 경우 식별 번호
-
 int R, C, K;
 int SUM;
 
 int dy[4] = { -1, 0, 1, 0 };
 int dx[4] = { 0, 1, 0, -1 };
 
-int FOREST[71][71];
+pair<int, bool> FOREST[71][71]; // (gid, entry)
 bool visited[71][71];
 
 /// 숲 초기화 함수
@@ -29,7 +21,7 @@ void clearForest() {
 	// memset으로 초기화 가능 -> 추후 수정
 	for (int i = 0; i <= R; i++)
 		for (int j = 0; j <= C; j++)
-			FOREST[i][j] = 0;
+			FOREST[i][j] = make_pair(0, false);
 }
 
 class Golem {
@@ -43,7 +35,7 @@ private:
 		// 숲 범위 안에 있는 경우
 		if (inRange(y + 2, x) && inRange(y + 1, x - 1) && inRange(y + 1, x + 1)) {
 			// 이동하는 위치가 비어 있는 경우
-			if (!FOREST[y + 2][x] && !FOREST[y + 1][x - 1] && !FOREST[y + 1][x + 1])
+			if (!FOREST[y + 2][x].first && !FOREST[y + 1][x - 1].first && !FOREST[y + 1][x + 1].first)
 				return true;
 			else return false;
 		}
@@ -62,8 +54,8 @@ private:
 
 		if (inRange(y - 1, x + f[0]) && inRange(y, x + f[1]) && inRange(y + 1, x + f[1]) &&
 			inRange(y + 1, x + f[0]) && inRange(y + 2, x + f[0])) {
-			if (!FOREST[y - 1][x + f[0]] && !FOREST[y][x + f[1]] && !FOREST[y + 1][x + f[1]] &&
-				!FOREST[y + 1][x + f[0]] && !FOREST[y + 2][x + f[0]]) {
+			if (!FOREST[y - 1][x + f[0]].first && !FOREST[y][x + f[1]].first && !FOREST[y + 1][x + f[1]].first &&
+				!FOREST[y + 1][x + f[0]].first && !FOREST[y + 2][x + f[0]].first) {
 				return true;
 			}
 			else return false;
@@ -128,14 +120,14 @@ public:
 		int y = pos.first;
 		int x = pos.second;
 
-		FOREST[y][x] = id;
+		FOREST[y][x] = make_pair(id, false);
 
 		for (int i = 0; i < 4; i++) {
 			int ny = y + dy[i];
 			int nx = x + dx[i];
 
-			if (i == exit) FOREST[ny][nx] = ENTRY + id; // ENTRY + id로 현재 골렘의 출구임을 표시
-			else FOREST[ny][nx] = id;
+			if (i == exit) FOREST[ny][nx] = make_pair(id, true); // ENTRY + id로 현재 골렘의 출구임을 표시
+			else FOREST[ny][nx] = make_pair(id, false);
 		}
 	}
 };
@@ -145,15 +137,11 @@ bool inRange(int y, int x) {
 	return y > 0 && y <= R && x > 0 && x <= C;
 }
 
-bool canGo(int y, int x, int gid) {
+bool canGo(int y, int x, int beforeGid, bool isEntry) {
 	if (!inRange(y, x)) return false;
-	else if (FOREST[y][x] == 0 || visited[y][x]) return false;
-	else if (FOREST[y][x] != gid) {
-		// 이동하려는 위치가 해당 골렘의 출입구인 경우
-		if (FOREST[y][x] == ENTRY + gid) return true;
-		// 현재 출입구에 있는 경우
-		else if (gid == ON_ENTRY) return true;
-		// 다른 골렘인 경우
+	else if (FOREST[y][x].first == 0 || visited[y][x]) return false;
+	else if (FOREST[y][x].first != beforeGid) {
+		if (isEntry) return true;
 		else return false;
 	}
 	else return true;
@@ -173,17 +161,18 @@ int spiritMove(int y, int x) {
 	visited[y][x] = true;
 
 	while (!q.empty()) {
-		pair<int, int> pos = q.front();
+		int curY = q.front().first;
+		int curX = q.front().second;
 		q.pop();
 
-		int gid = FOREST[pos.first][pos.second];
-		if (gid > ENTRY) gid = ON_ENTRY;
+		int beforeGid = FOREST[curY][curX].first;
+		int isEntry = FOREST[curY][curX].second;
 
 		for (int i = 0; i < 4; i++) {
-			int ny = pos.first + dy[i];
-			int nx = pos.second + dx[i];
+			int ny = curY + dy[i];
+			int nx = curX + dx[i];
 
-			if (canGo(ny, nx, gid)) {
+			if (canGo(ny, nx, beforeGid, isEntry)) {
 				visited[ny][nx] = true;
 
 				// 정령이 이동한 최하단 위치 갱신
