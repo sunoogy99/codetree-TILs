@@ -92,24 +92,20 @@ bool canGo(int y, int x, int curNum) {
 }
 
 // DFS를 통해 조각 개수 세기 (cnt가 3 이상이어야 조각으로 반영)
-void dfs(int y, int x) {
+void dfs(int y, int x, vector<pair<int, int>>& dfsList) {
 	int curNum = grid[y][x];
 	cnt++;
 	visited[y][x] = true;
+	dfsList.push_back(make_pair(y, x));
 
 	for (int i = 0; i < 4; ++i) {
 		int newY = y + dy[i];
 		int newX = x + dx[i];
 
 		if (canGo(newY, newX, curNum)) {
-			dfs(newY, newX);
+			dfs(newY, newX, dfsList);
 		}
-	}
-
-	// dfs 복귀 후, 조각인 게 확정되면 조각 위치를 저장
-	if (cnt >= 3) {
-		isFrag[y][x] = true;
-	}
+	}	
 }
 
 void getScore(int y, int x) {
@@ -122,10 +118,14 @@ void getScore(int y, int x) {
 	for (int i = 1; i <= 5; ++i) {
 		for (int j = 1; j <= 5; ++j) {
 			if (!visited[i][j]) {
-				dfs(i, j);
+				vector<pair<int, int>> dfsList; // dfs로 들어가는 좌표 저장
+				dfs(i, j, dfsList);
 
 				if (cnt >= 3) {
 					fragCnt += cnt;
+					for (pair<int, int> pos : dfsList) {
+						isFrag[pos.first][pos.second] = true;
+					}
 				}
 
 				cnt = 0;
@@ -205,10 +205,13 @@ int main() {
 
 			priority_queue<pair<int, int>, vector<pair<int, int>>, comp> posPq;
 
+			int cc = 0;
 			for (int i = 1; i <= 5; ++i) {
 				for (int j = 1; j <= 5; ++j) {
-					if (isFrag[i][j])
+					if (isFrag[i][j]) {
 						posPq.push(make_pair(i, j));
+						cc++;
+					}
 				}
 			}
 
@@ -223,7 +226,7 @@ int main() {
 			}
 		}
 
-		cout << score << ' ';
+		cout << score << '\n';
 	}
 
 	return 0;
