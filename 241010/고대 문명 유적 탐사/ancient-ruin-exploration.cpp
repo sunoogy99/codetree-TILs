@@ -226,7 +226,7 @@ int main() {
 			}
 		}
 
-		cout << score << '\n';
+		cout << score << ' ';
 	}
 
 	return 0;
