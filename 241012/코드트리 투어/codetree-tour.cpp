@@ -11,6 +11,8 @@ int n, m;
 int u, v, w;
 int start = 0; // 출발 지점
 
+vector<int> costs; // 정점에 대한 최단 거리 저장
+
 struct Product {
 	int id;
 	int revenue;
@@ -27,12 +29,14 @@ struct Product {
 */
 };
 
+// Product Comp
 struct comp {
 	bool operator() (Product* a, Product* b) const {
+		// costs로 우선순위 설정할 수 있나? -> 갱신 안됨
 		if (a->revenue - a->cost == b->revenue - b->cost) {
-			return a->id > b->id;
+			return a->id < b->id;
 		}
-		return a->revenue - a->cost < b->revenue - b->cost;
+		return a->revenue - a->cost > b->revenue - b->cost;
 	}
 };
 
@@ -40,16 +44,15 @@ struct cmp {
 	bool operator() (pair<int, int> a, pair<int, int> b) const {
 		// 도착 정점이 같은 경우, 비용이 작은게 앞에 오도록 한다.
 		if (a.first == b.first)
-			return a.second < b.second;
+			return a.second > b.second;
 		// 도착 정점이 다른 경우, 정점 번호가 작은게 앞에 오도록 한다.
 		else return a.first < b.first;
 	}
 };
 
-bool isDeleted[30001]; // 여행 상품이 삭제되었는가
 vector<set<pair<int, int>, cmp>> graph; // 그래프. 간선을 인덱스로 접근하는 경우가 없기 때문에 set 사용 가능
-priority_queue<Product*, vector<Product*>, comp> prodQ; // 상품 우선순위에 기반해 저장한 큐
-vector<int> costs; // 정점에 대한 최단 거리 저장
+set<Product*, comp> prodQ; // 상품 우선순위에 기반해 저장한 큐
+Product* info[30001]; // 상품 정보 저장 (set find에서 사용할 거임)
 
 // 다익스트라로 시작점 s로부터 최단 거리 구하기
 void dijikstra(int s) {
@@ -107,32 +110,45 @@ int main() {
 		}
 		else if (op == 200) {
 			cin >> id >> rev >> des;
-			prodQ.push(new Product(id, rev, des, costs[des]));
-			isDeleted[id] = false; // 여행 상품 삭제 시도를 먼저 한 경우가 있을 수 있음
+			Product* newProd = new Product(id, rev, des, costs[des]);
+			prodQ.insert(newProd);
+			info[id] = newProd;
+			// isDeleted[id] = false; // 여행 상품 삭제 시도를 먼저 한 경우가 있을 수 있음
 		}
 		else if (op == 300) {
 			cin >> id;
-			isDeleted[id] = true;
+			// isDeleted[id] = true;
+			// 여기를 set.find로 찾아야 함
+			Product* tmp = info[id];
+			
+			if (tmp != nullptr) {
+				// 비용 갱신 안 되어 있을 수 있음
+				tmp->cost = costs[tmp->dest];
+
+				auto it = prodQ.find(tmp);
+				if (it != prodQ.end()) {
+					prodQ.erase(it);
+				}
+
+				info[id] = nullptr;
+			}
 		}
 		else if (op == 400) {
 			while (true) {
-				if (prodQ.empty()) {
+				if (prodQ.size() == 0) {
 					cout << -1 << '\n';
 					break;
 				}
 				
-				Product* curProd = prodQ.top();
+				Product* curProd = *(prodQ.begin());
 
-				if (isDeleted[curProd->id]) {
-					prodQ.pop();
-				}
-				else if ((curProd->revenue) - (curProd->cost) < 0 || (curProd->cost) == INF) {
+				if ((curProd->revenue) - costs[curProd->dest] < 0 || costs[curProd->dest] == INF) {
 					cout << -1 << '\n';
 					break;
 				}
 				else {
 					cout << curProd->id << '\n';
-					prodQ.pop();
+					prodQ.erase(prodQ.begin());
 					break;
 				}
 			}
@@ -143,23 +159,21 @@ int main() {
 			costs.clear();
 
 			costs.resize(n, INF);
-
+			
 			dijikstra(start);
 
-			vector<Product*> temp;
+			// set에서 erase를 해서 빼야함
+			// 안 빼고 cost 갱신하면, set 우선순위 바뀜
+			vector<Product*> tmp;
 			while (!prodQ.empty()) {
-				Product* prod = prodQ.top();
-				prodQ.pop();
-
-				// 삭제된 게 아닌 경우에만 갱신해서 넣기
-				if (!isDeleted[prod->id]) {
-					prod->cost = costs[prod->dest];
-					temp.push_back(prod);
-				}
+				Product* p = *prodQ.begin();
+				prodQ.erase(prodQ.begin());
+				p->cost = costs[p->dest];
+				tmp.push_back(p);
 			}
 
-			for (Product* p : temp) {
-				prodQ.push(p);
+			for (auto p : tmp) {
+				prodQ.insert(p);
 			}
 		}
 	}
