@@ -20,23 +20,23 @@ struct Product {
 	int cost;
 
 	Product(int id, int r, int d, int c) : id(id), revenue(r), dest(d), cost(c) {}
-/*
-	bool operator<(const Product& comp) const {
-		if (revenue - cost == comp.revenue - comp.cost)
-			return id > comp.id;
-		return revenue - cost < comp.revenue - comp.cost;
-	}
-*/
+	/*
+		bool operator<(const Product& comp) const {
+			if (revenue - cost == comp.revenue - comp.cost)
+				return id > comp.id;
+			return revenue - cost < comp.revenue - comp.cost;
+		}
+	*/
 };
 
-// Product Comp
+// Product Comp. set으로 풀거면 부등호 반대로 하기
 struct comp {
 	bool operator() (Product* a, Product* b) const {
 		// costs로 우선순위 설정할 수 있나? -> 갱신 안됨
 		if (a->revenue - a->cost == b->revenue - b->cost) {
-			return a->id < b->id;
+			return a->id > b->id;
 		}
-		return a->revenue - a->cost > b->revenue - b->cost;
+		return a->revenue - a->cost < b->revenue - b->cost;
 	}
 };
 
@@ -51,8 +51,8 @@ struct cmp {
 };
 
 vector<set<pair<int, int>, cmp>> graph; // 그래프. 간선을 인덱스로 접근하는 경우가 없기 때문에 set 사용 가능
-set<Product*, comp> prodQ; // 상품 우선순위에 기반해 저장한 큐
-Product* info[30001]; // 상품 정보 저장 (set find에서 사용할 거임)
+priority_queue<Product*, vector<Product*>, comp> prodQ; // 상품 우선순위에 기반해 저장한 큐
+bool isDeleted[30001];
 
 // 다익스트라로 시작점 s로부터 최단 거리 구하기
 // 다익스트라가 잘못됐나? O(ElogV)
@@ -112,44 +112,32 @@ int main() {
 		else if (op == 200) {
 			cin >> id >> rev >> des;
 			Product* newProd = new Product(id, rev, des, costs[des]);
-			prodQ.insert(newProd); // O(logn) -> 3만 logn
-			info[id] = newProd;
-			// isDeleted[id] = false; // 여행 상품 삭제 시도를 먼저 한 경우가 있을 수 있음
+			prodQ.push(newProd); // O(logn) -> 3만 logn
+			isDeleted[id] = false; // 여행 상품 삭제 시도를 먼저 한 경우가 있을 수 있음
 		}
 		else if (op == 300) {
 			cin >> id;
-			// isDeleted[id] = true;
-			// 여기를 set.find로 찾아야 함
-			Product* tmp = info[id];
-			
-			if (tmp != nullptr) {
-				// 비용 갱신 안 되어 있을 수 있음
-				tmp->cost = costs[tmp->dest];
-
-				auto it = prodQ.find(tmp);
-				if (it != prodQ.end()) {
-					prodQ.erase(it);
-				}
-
-				info[id] = nullptr;
-			}
+			isDeleted[id] = true;
 		}
 		else if (op == 400) {
 			while (true) {
-				if (prodQ.size() == 0) {
+				if (prodQ.empty()) {
 					cout << -1 << '\n';
 					break;
 				}
-				
-				Product* curProd = *(prodQ.begin());
 
-				if ((curProd->revenue) - costs[curProd->dest] < 0 || costs[curProd->dest] == INF) {
+				Product* curProd = prodQ.top();
+				
+				if (isDeleted[curProd->id]) {
+					prodQ.pop();
+				}
+				else if (curProd->revenue - costs[curProd->dest] < 0 || costs[curProd->dest] == INF) {
 					cout << -1 << '\n';
 					break;
 				}
 				else {
 					cout << curProd->id << '\n';
-					prodQ.erase(prodQ.begin());
+					prodQ.pop();
 					break;
 				}
 			}
@@ -160,21 +148,21 @@ int main() {
 			costs.clear();
 
 			costs.resize(n, INF);
-			
+
 			dijikstra(start);
 
 			// set에서 erase를 해서 빼야함
 			// 안 빼고 cost 갱신하면, set 우선순위 바뀜
 			vector<Product*> tmp;
 			while (!prodQ.empty()) {
-				Product* p = *prodQ.begin();
-				prodQ.erase(prodQ.begin());
+				Product* p = prodQ.top();
+				prodQ.pop();
 				p->cost = costs[p->dest];
 				tmp.push_back(p);
 			}
 
 			for (auto p : tmp) {
-				prodQ.insert(p);
+				prodQ.push(p);
 			}
 		}
 	}
