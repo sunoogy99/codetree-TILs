@@ -36,12 +36,10 @@ struct cmp {
 	}
 };
 
-bool isEnrolled[30001]; // 여행 상품으로 등록되었는가
 bool isDeleted[30001]; // 여행 상품이 삭제되었는가
 vector<set<pair<int, int>, cmp>> graph; // 그래프. 간선을 인덱스로 접근하는 경우가 없기 때문에 set 사용 가능
 priority_queue<Product> prodQ; // 상품 우선순위에 기반해 저장한 큐
 vector<int> costs; // 정점에 대한 최단 거리 저장
-vector<bool> visited; // 정점 방문 여부 저장
 
 // 다익스트라로 시작점 s로부터 최단 거리 구하기
 void dijikstra(int s) {
@@ -54,8 +52,6 @@ void dijikstra(int s) {
 		int curX = pq.top().second;
 		pq.pop();
 
-		visited[curX] = true;
-
 		// 현재 방문한 지점이 costs보다 작은 경우, 방문할 필요 없음
 		if (curCost > costs[curX]) continue;
 
@@ -64,7 +60,7 @@ void dijikstra(int s) {
 			int weight = e.second;
 
 			// 정점 방문 체크를 하는 것이 맞는 구현인가? -> 맞음
-			if (!visited[nextX] && costs[curX] + weight < costs[nextX]) {
+			if (costs[curX] + weight < costs[nextX]) {
 				costs[nextX] = costs[curX] + weight;
 				pq.push(make_pair(costs[nextX], nextX));
 			}
@@ -84,7 +80,6 @@ int main() {
 
 			graph.resize(n);
 			costs.resize(n, INF);
-			visited.resize(n, false);
 
 			// 그래프 구현
 			for (int i = 0; i < m; ++i) {
@@ -99,12 +94,11 @@ int main() {
 		else if (op == 200) {
 			cin >> id >> rev >> des;
 			prodQ.push(Product(id, rev, des, costs[des]));
-			isEnrolled[id] = true; // 여행 상품 등록되었음을 남김
+			isDeleted[id] = false; // 여행 상품 삭제 시도를 먼저 한 경우가 있을 수 있음
 		}
 		else if (op == 300) {
 			cin >> id;
-			if (isEnrolled[id]) 
-				isDeleted[id] = true; // 여행 상품 삭제되었음을 남김
+			isDeleted[id] = true;
 		}
 		else if (op == 400) {
 			while (true) {
@@ -133,10 +127,8 @@ int main() {
 			cin >> start;
 
 			costs.clear();
-			visited.clear();
 
 			costs.resize(n, INF);
-			visited.resize(n, false);
 
 			dijikstra(start);
 
@@ -145,8 +137,11 @@ int main() {
 				Product prod = prodQ.top();
 				prodQ.pop();
 
-				prod.cost = costs[prod.dest];
-				temp.push_back(prod);
+				// 삭제된 게 아닌 경우에만 갱신해서 넣기
+				if (!isDeleted[prod.id]) {
+					prod.cost = costs[prod.dest];
+					temp.push_back(prod);
+				}
 			}
 
 			for (const Product p : temp) {
