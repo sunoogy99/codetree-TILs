@@ -55,8 +55,9 @@ set<Product*, comp> prodQ; // 상품 우선순위에 기반해 저장한 큐
 Product* info[30001]; // 상품 정보 저장 (set find에서 사용할 거임)
 
 // 다익스트라로 시작점 s로부터 최단 거리 구하기
+// 다익스트라가 잘못됐나? O(ElogV)
 void dijikstra(int s) {
-	priority_queue<pair<int, int>> pq;
+	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>> > pq;
 	pq.push(make_pair(0, s)); // 시작 정점에 대한 비용은 0
 	costs[s] = 0;
 
@@ -111,7 +112,7 @@ int main() {
 		else if (op == 200) {
 			cin >> id >> rev >> des;
 			Product* newProd = new Product(id, rev, des, costs[des]);
-			prodQ.insert(newProd);
+			prodQ.insert(newProd); // O(logn) -> 3만 logn
 			info[id] = newProd;
 			// isDeleted[id] = false; // 여행 상품 삭제 시도를 먼저 한 경우가 있을 수 있음
 		}
