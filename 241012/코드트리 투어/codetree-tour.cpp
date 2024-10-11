@@ -36,7 +36,8 @@ struct cmp {
 	}
 };
 
-bool isDeleted[30001];
+bool isEnrolled[30001]; // 여행 상품으로 등록되었는가
+bool isDeleted[30001]; // 여행 상품이 삭제되었는가
 vector<set<pair<int, int>, cmp>> graph; // 그래프. 간선을 인덱스로 접근하는 경우가 없기 때문에 set 사용 가능
 priority_queue<Product> prodQ; // 상품 우선순위에 기반해 저장한 큐
 vector<int> costs; // 정점에 대한 최단 거리 저장
@@ -98,10 +99,12 @@ int main() {
 		else if (op == 200) {
 			cin >> id >> rev >> des;
 			prodQ.push(Product(id, rev, des, costs[des]));
+			isEnrolled[id] = true; // 여행 상품 등록되었음을 남김
 		}
 		else if (op == 300) {
 			cin >> id;
-			isDeleted[id] = true;
+			if (isEnrolled[id]) 
+				isDeleted[id] = true; // 여행 상품 삭제되었음을 남김
 		}
 		else if (op == 400) {
 			while (true) {
