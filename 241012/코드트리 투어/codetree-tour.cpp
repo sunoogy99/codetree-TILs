@@ -18,11 +18,21 @@ struct Product {
 	int cost;
 
 	Product(int id, int r, int d, int c) : id(id), revenue(r), dest(d), cost(c) {}
-
+/*
 	bool operator<(const Product& comp) const {
 		if (revenue - cost == comp.revenue - comp.cost)
 			return id > comp.id;
 		return revenue - cost < comp.revenue - comp.cost;
+	}
+*/
+};
+
+struct comp {
+	bool operator() (Product* a, Product* b) const {
+		if (a->revenue - a->cost == b->revenue - b->cost) {
+			return a->id > b->id;
+		}
+		return a->revenue - a->cost < b->revenue - b->cost;
 	}
 };
 
@@ -38,7 +48,7 @@ struct cmp {
 
 bool isDeleted[30001]; // 여행 상품이 삭제되었는가
 vector<set<pair<int, int>, cmp>> graph; // 그래프. 간선을 인덱스로 접근하는 경우가 없기 때문에 set 사용 가능
-priority_queue<Product> prodQ; // 상품 우선순위에 기반해 저장한 큐
+priority_queue<Product*, vector<Product*>, comp> prodQ; // 상품 우선순위에 기반해 저장한 큐
 vector<int> costs; // 정점에 대한 최단 거리 저장
 
 // 다익스트라로 시작점 s로부터 최단 거리 구하기
@@ -97,7 +107,7 @@ int main() {
 		}
 		else if (op == 200) {
 			cin >> id >> rev >> des;
-			prodQ.push(Product(id, rev, des, costs[des]));
+			prodQ.push(new Product(id, rev, des, costs[des]));
 			isDeleted[id] = false; // 여행 상품 삭제 시도를 먼저 한 경우가 있을 수 있음
 		}
 		else if (op == 300) {
@@ -111,17 +121,17 @@ int main() {
 					break;
 				}
 				
-				Product curProd = prodQ.top();
+				Product* curProd = prodQ.top();
 
-				if (isDeleted[curProd.id]) {
+				if (isDeleted[curProd->id]) {
 					prodQ.pop();
 				}
-				else if (curProd.revenue - curProd.cost < 0 || curProd.cost == INF) {
+				else if ((curProd->revenue) - (curProd->cost) < 0 || (curProd->cost) == INF) {
 					cout << -1 << '\n';
 					break;
 				}
 				else {
-					cout << curProd.id << '\n';
+					cout << curProd->id << '\n';
 					prodQ.pop();
 					break;
 				}
@@ -136,19 +146,19 @@ int main() {
 
 			dijikstra(start);
 
-			vector<Product> temp;
+			vector<Product*> temp;
 			while (!prodQ.empty()) {
-				Product prod = prodQ.top();
+				Product* prod = prodQ.top();
 				prodQ.pop();
 
 				// 삭제된 게 아닌 경우에만 갱신해서 넣기
-				if (!isDeleted[prod.id]) {
-					prod.cost = costs[prod.dest];
+				if (!isDeleted[prod->id]) {
+					prod->cost = costs[prod->dest];
 					temp.push_back(prod);
 				}
 			}
 
-			for (const Product p : temp) {
+			for (Product* p : temp) {
 				prodQ.push(p);
 			}
 		}
